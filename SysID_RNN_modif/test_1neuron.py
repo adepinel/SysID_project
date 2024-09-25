@@ -57,7 +57,7 @@ torch.manual_seed(seed)
 idd = 5
 hdd = 1
 ldd = 1
-odd = yExp[0, 0].shape[0]
+odd = yExp[0, 0].shape[1]
 
 # Initialize RNN model
 RNN = RNNModel(idd, hdd, ldd, odd)
@@ -94,6 +94,7 @@ for epoch in range(epochs):
     # Get RNN output for training data
     yRNN = RNN(u)
     yRNN = torch.squeeze(yRNN)
+    
 
     # Calculate loss and backpropagate
     loss = MSE(yRNN, y)
@@ -105,18 +106,18 @@ for epoch in range(epochs):
     LOSS[epoch] = loss
 
 # Set end time for validation data
-t_end = yExp_val[0, 0].shape[1]
+t_end = yExp_val[0, 0].shape[0]
 
 # Initialize input and output tensors for validation data
 nExp = yExp_val.size
-uval = torch.zeros(nExp, t_end, 1)
-yval = torch.zeros(nExp, t_end, 3)
+uval = torch.zeros(nExp, t_end, 5)
+yval = torch.zeros(nExp, t_end, 2)
 
 # Fill input and output tensors with validation data
 for j in range(nExp):
-    inputActive = (torch.from_numpy(dExp_val[0, j])).T
+    inputActive = (torch.from_numpy(dExp_val[0, j]))
     uval[j, :, :] = torch.unsqueeze(inputActive[:,inputnumberD], 1)
-    yval[j, :, :] = (torch.from_numpy(yExp_val[0, j])).T
+    yval[j, :, :] = (torch.from_numpy(yExp_val[0, j]))
 
 # Get RNN output for validation data
 yRNN_val = RNN(uval)
@@ -130,3 +131,41 @@ plt.figure('8')
 plt.plot(LOSS)
 plt.title("LOSS")
 plt.show()
+
+# Plot output 1 for training data
+plt.figure('9')
+plt.plot(yRNN[0, :, 0].detach().numpy(), label='REN')
+plt.plot(y[0, :, 0].detach().numpy(), label='y train')
+plt.title("output 1 train single RNN")
+plt.legend()
+plt.show()
+
+# Plot output 1 for validation data
+plt.figure('10')
+plt.plot(yRNN_val[:, 0].detach().numpy(), label='REN val')
+plt.plot(yval[0, :, 0].detach().numpy(), label='y val')
+plt.title("output 1 val single RNN")
+plt.legend()
+plt.show()
+
+# Plot output 2 for training data
+plt.figure('11')
+plt.plot(yRNN[0, :, 1].detach().numpy(), label='REN')
+plt.plot(y[0, :, 1].detach().numpy(), label='y train')
+plt.title("output 2 train single RNN")
+plt.legend()
+plt.show()
+
+# Plot output 2 for validation data
+plt.figure('12')
+plt.plot(yRNN_val[0, :, 1].detach().numpy(), label='REN val')
+plt.plot(yval[0, :, 1].detach().numpy(), label='y val')
+plt.title("output 2 val single REN")
+plt.legend()
+plt.show()
+
+# Save RNN output and validation data to file
+scipy.io.savemat('data_singleRNN_sysID.mat', dict(yRENm_val=yRNN_val.detach().numpy(), yval=yval.detach().numpy()))
+
+# Print validation loss
+print(f"Loss Validation single RNN: {loss_val}")
