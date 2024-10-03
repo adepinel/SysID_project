@@ -31,7 +31,7 @@ class RNNModel(nn.Module):
         self.layer_dim = layer_dim
 
         # RNN
-        self.rnn = nn.RNN(input_dim, hidden_dim, layer_dim, nonlinearity='relu', batch_first=True)
+        self.rnn = nn.RNN(input_dim, hidden_dim, layer_dim, nonlinearity='sigmoid', batch_first=True, bias=True)
 
         # Readout layer
         self.fc = nn.Linear(hidden_dim, output_dim)
